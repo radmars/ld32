@@ -9,18 +9,10 @@ var PlayState = (function() {
     function PlayState() {
         State.call(this);
         this.assets = [
-
+            { name: 'assets/gfx/enemy1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/player.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/blockage1.png', type: 'img', callback: pixelize },
         ]
-    };
-
-    function mapAnimationAssets( count, name ) {
-        return TQuad.enumerate(count,name).map(function(file) {
-            return {
-                name: file,
-                type: 'img',
-                callback: pixelize
-            };
-        });
     };
 
     PlayState.prototype = Object.create(State.prototype);
@@ -31,7 +23,30 @@ var PlayState = (function() {
 
     PlayState.prototype.onStart = function(game) {
         var self = this;
+        this.superSecretCounter = 0;
 
+        this.playerTracker = new THREE.Object3D();
+        this.enemyTracker = new THREE.Object3D();
+
+        this.playerQuad = new TQuad(game, {
+            animations: [{
+                frames: ['assets/gfx/player.png'],
+                frameTime: 100,
+                name: 'default',
+            }],
+            current: 'default',
+        });
+        this.enemyQuad = new TQuad(game, {
+            animations: [{
+                frames: ['assets/gfx/enemy1.png'],
+                frameTime: 100,
+                name: 'default',
+            }],
+            current: 'default',
+        });
+
+        this.enemyTracker.add(this.enemyQuad.mesh);
+        this.playerTracker.add(this.playerQuad.mesh);
 
         this.scene2d = new THREE.Scene();
         this.camera2d = new THREE.OrthographicCamera( 0, game.width, 0, game.height );
@@ -42,6 +57,11 @@ var PlayState = (function() {
             fgColor: 'white',
         });
 
+        this.enemyTracker.position.set( game.width/2, game.height/2 - 100, 0);
+        this.playerTracker.position.set( game.width/2, game.height/2 + 100, 0);
+        this.scene2d.add(this.playerTracker);
+        this.scene2d.add(this.enemyTracker);
+
         game.renderer.setClearColor(0x2e2e2e, 1);
         game.renderer.autoClear = false;
 
@@ -51,20 +71,24 @@ var PlayState = (function() {
         }
     };
 
+    PlayState.prototype.calculateScore = function() {
+        return 100;
+    }
+
     PlayState.prototype.updateScore = function(dt) {
-        /*var score = this.calculateScore()
+        var score = this.calculateScore()
         // attach properties like a jerk
         if( ( !this.scoreObject ) || (this.scoreObject && this.scoreObject.score != score ) ) {
             if(this.scoreObject) {
                 this.scene2d.remove(this.scoreObject);
             }
-            this.scoreObject = TextRenderer.render(this.font, "" + score );
+            this.scoreObject = TextRenderer.render(this.font, "Score: " + score );
             this.scoreObject.score = score;
             this.scoreObject.position.x = 0; // this.cx*2;
             this.scoreObject.position.y = 0; // this.cy*2;
             this.scoreObject.position.z = 4;
             this.scene2d.add(this.scoreObject);
-        }*/
+        }
     }
 
     PlayState.prototype.update = function(game, dt){
@@ -72,6 +96,12 @@ var PlayState = (function() {
         var self = this;
 
         this.updateScore(dt);
+        this.superSecretCounter += dt;
+        this.enemyQuad.mesh.rotation.z = -this.superSecretCounter / 500;
+        this.enemyQuad.mesh.position.x = Math.cos(-this.superSecretCounter / 500) * 100;
+        this.enemyQuad.mesh.position.y = Math.sin(-this.superSecretCounter / 500) * 100;
+        this.playerQuad.mesh.position.x = Math.cos(this.superSecretCounter / 1000) * 100;
+        this.playerQuad.mesh.position.y = Math.sin(this.superSecretCounter / 1000) * 100;
 
         //this.player.update(game, dt);
     }

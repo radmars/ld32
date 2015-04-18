@@ -1,11 +1,11 @@
 var IntroState = (function(){
     "use strict";
-    
-	var pixelize = function(t) {
+
+    var pixelize = function(t) {
         t.magFilter = THREE.NearestFilter;
         t.minFilter = THREE.LinearMipMapLinearFilter;
     };
-    
+
     function IntroState( nextState ) {
         State.call(this);
         this.glassesFiles = [
@@ -27,8 +27,8 @@ var IntroState = (function(){
         ]
 
         this.bgAssetName = "assets/intro/bg.png";
-		
-		this.marsFiles = [
+
+        this.marsFiles = [
             { name: 'assets/intro/mars1.png', type: 'img', callback: pixelize },
         ];
 
@@ -105,7 +105,7 @@ var IntroState = (function(){
                 map: game.loader.get( file.name ),
             });
         });
-       
+
         this.glasses = new TQuad(game, {
             animations: [
                 {
@@ -178,7 +178,7 @@ var IntroState = (function(){
                 self.cx,
                 self.cy - 28 / 2 + 80, 0
             );
-								
+
             if(self.counter > 6400){
                 game.operations.push(function() {
                     game.setState( self.nextState );
