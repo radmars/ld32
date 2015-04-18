@@ -12,6 +12,22 @@ var PlayState = (function() {
             { name: 'assets/gfx/enemy1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/player.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blockage1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/not-road1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/not-road2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left-in1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left-in2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left-out1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-left-out2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right-in1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right-in2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right-out1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/road-right-out2.png', type: 'img', callback: pixelize },
         ]
     };
 
@@ -61,6 +77,8 @@ var PlayState = (function() {
         this.playerTracker.position.set( game.width/2, game.height/2 + 100, 0);
         this.scene2d.add(this.playerTracker);
         this.scene2d.add(this.enemyTracker);
+
+        this.grid = new Grid(game, 5, this.scene2d);
 
         game.renderer.setClearColor(0x2e2e2e, 1);
         game.renderer.autoClear = false;
