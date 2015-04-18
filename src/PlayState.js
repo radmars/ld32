@@ -41,17 +41,7 @@ var PlayState = (function() {
         var self = this;
         this.superSecretCounter = 0;
 
-        this.playerTracker = new THREE.Object3D();
         this.enemyTracker = new THREE.Object3D();
-
-        this.playerQuad = new TQuad(game, {
-            animations: [{
-                frames: ['assets/gfx/player.png'],
-                frameTime: 100,
-                name: 'default',
-            }],
-            current: 'default',
-        });
         this.enemyQuad = new TQuad(game, {
             animations: [{
                 frames: ['assets/gfx/enemy1.png'],
@@ -62,7 +52,6 @@ var PlayState = (function() {
         });
 
         this.enemyTracker.add(this.enemyQuad.mesh);
-        this.playerTracker.add(this.playerQuad.mesh);
 
         this.scene2d = new THREE.Scene();
         this.camera2d = new THREE.OrthographicCamera( 0, game.width, 0, game.height );
@@ -74,8 +63,8 @@ var PlayState = (function() {
         });
 
         this.enemyTracker.position.set( game.width/2, game.height/2 - 100, 0);
-        this.playerTracker.position.set( game.width/2, game.height/2 + 100, 0);
-        this.scene2d.add(this.playerTracker);
+        this.player = new Player(game);
+        this.player.addTo(this.scene2d);
         this.scene2d.add(this.enemyTracker);
 
         this.grid = new Grid(game, 10, this.scene2d);
@@ -120,10 +109,8 @@ var PlayState = (function() {
         this.enemyQuad.mesh.rotation.z = -this.superSecretCounter / 500;
         this.enemyQuad.mesh.position.x = Math.cos(-this.superSecretCounter / 500) * 100;
         this.enemyQuad.mesh.position.y = Math.sin(-this.superSecretCounter / 500) * 100;
-        this.playerQuad.mesh.position.x = Math.cos(this.superSecretCounter / 1000) * 100;
-        this.playerQuad.mesh.position.y = Math.sin(this.superSecretCounter / 1000) * 100;
 
-        //this.player.update(game, dt);
+        this.player.update(game, dt);
     }
 
     PlayState.prototype.resize = function(width, height) {
