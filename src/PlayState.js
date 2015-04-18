@@ -39,19 +39,6 @@ var PlayState = (function() {
 
     PlayState.prototype.onStart = function(game) {
         var self = this;
-        this.superSecretCounter = 0;
-
-        this.enemyTracker = new THREE.Object3D();
-        this.enemyQuad = new TQuad(game, {
-            animations: [{
-                frames: ['assets/gfx/enemy1.png'],
-                frameTime: 100,
-                name: 'default',
-            }],
-            current: 'default',
-        });
-
-        this.enemyTracker.add(this.enemyQuad.mesh);
 
         this.scene2d = new THREE.Scene();
         this.camera2d = new THREE.OrthographicCamera( 0, game.width, 0, game.height );
@@ -61,13 +48,15 @@ var PlayState = (function() {
             size: 32,
             fgColor: 'white',
         });
+        this.courseTranslation = new THREE.Object3D();
+        this.scene2d.add(this.courseTranslation);
 
-        this.enemyTracker.position.set( game.width/2, game.height/2 - 100, 0);
         this.player = new Player(game);
-        this.player.addTo(this.scene2d);
-        this.scene2d.add(this.enemyTracker);
+        this.player.addTo(this.courseTranslation);
+        this.enemy = new Enemy(game, this.player);
+        this.enemy.addTo(this.courseTranslation);
 
-        this.grid = new Grid(game, 10, this.scene2d);
+        this.grid = new Grid(game, 9, this.courseTranslation);
 
         game.renderer.setClearColor(0x2e2e2e, 1);
         game.renderer.autoClear = false;
@@ -96,21 +85,30 @@ var PlayState = (function() {
             this.scoreObject.position.z = 4;
             this.scene2d.add(this.scoreObject);
         }
+        if( !this.speedo || this.speedo.speed != this.player.velocity.y ) {
+            if(this.speedo){
+                this.scene2d.remove(this.speedo);
+            }
+            var speed = this.player.velocity.y;
+            this.speedo = TextRenderer.render(this.font, "Speed: " + speed + "/" + this.player.maxY);
+            this.speedo.speed = speed;
+            this.speedo.position.x = 0;
+            this.speedo.position.y = 100;
+            this.speedo.position.z = 4;
+            this.scene2d.add(this.speedo);
+        }
     }
 
     PlayState.prototype.update = function(game, dt){
         State.prototype.update.call(this, game, dt);
         var self = this;
-
-        this.grid.update(game, dt);
-
-        this.updateScore(dt);
-        this.superSecretCounter += dt;
-        this.enemyQuad.mesh.rotation.z = -this.superSecretCounter / 500;
-        this.enemyQuad.mesh.position.x = Math.cos(-this.superSecretCounter / 500) * 100;
-        this.enemyQuad.mesh.position.y = Math.sin(-this.superSecretCounter / 500) * 100;
+        var step = this.player.velocity.y * dt / 1000;
+        this.courseTranslation.position.y += step;
 
         this.player.update(game, dt);
+        this.enemy.update(game, dt);
+        this.grid.update(game, dt, step);
+        this.updateScore(dt);
     }
 
     PlayState.prototype.resize = function(width, height) {

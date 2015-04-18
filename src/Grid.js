@@ -64,31 +64,29 @@ var Grid = (function() {
 
         this.container = new THREE.Object3D();
         this.centered = new THREE.Object3D();
-        container.add(this.centered);
-        this.centered.add(this.container);
+        container.add(this.container);
+        this.container.position.y += (numTiles -2) * this.size;
 
-        this.centered.position.x = game.width / 2 - (this.numTiles - 1)* this.size / 2;
-        this.centered.position.y = game.height / 2 - (this.numTiles - 1)* this.size / 2;
 
         this.expandThreshold = 0.25;
         this.contractThreshold = 0.25;
+        this.counter = 0;
+        this.travelled = 0;
 
         this.rows = [];
 
         // initial row
-        var initialOffset = (this.numTiles - 1)* this.size;
-        this.makeInitialRow(initialOffset);
+        this.makeInitialRow();
 
-        for (var j = 1; j < this.numTiles; j++) {
-            var yOffset = initialOffset - j * this.size;
-            this.makeRow( this.rows[j-1], yOffset );
+        for (var j = 1; j < this.numTiles ; j++) {
+            this.makeRow( this.rows[j-1]);
         }
         window.grid = this;
     }
 
-    Grid.prototype.makeInitialRow = function(initialOffset)
+    Grid.prototype.makeInitialRow = function()
     {
-        var row = new GridRow(initialOffset);
+        var row = new GridRow(0);
         this.addRow(row);
 
         // set up the edge
@@ -115,23 +113,18 @@ var Grid = (function() {
         // Then get the last row to build the new row...
         var lastRow = this.rows[this.rows.length - 1];
 
-        // Then shift everything down
-        var yOffset = this.size;
-        this.rows.forEach(function(row) {
-            row.shiftY(yOffset);
-        });
-
         // And fill in the gap
-        this.makeRow(lastRow, 0);
+        this.makeRow(lastRow);
     }
 
     Grid.prototype.addRow = function(row) {
+        this.counter ++;
         this.rows.push(row);
         this.container.add(row.container);
     }
 
-    Grid.prototype.makeRow = function(previousRow, yPos) {
-        var row = new GridRow(yPos);
+    Grid.prototype.makeRow = function(previousRow) {
+        var row = new GridRow(0 - this.counter * this.size);
         var buffer = 2;
         var length = previousRow.tiles.length;
         var left = 0;
@@ -214,18 +207,11 @@ var Grid = (function() {
         return row;
     }
 
-    Grid.prototype.update = function(game, dt) {
-        var speed = 0.1;
-        var step = speed * dt;
-        this.container.position.y += step;
+    Grid.prototype.update = function(game, dt, step) {
+        this.travelled += step
 
-        // TODO: if the step is > size, then we will have problems.
-        if( step > this.size ) {
-            throw "Uh this is 'unimplemented'...";
-        }
-
-        if(this.container.position.y > this.size ) {
-            this.container.position.y -= this.size;
+        while(this.travelled > this.size ) {
+            this.travelled -= this.size;
             this.rotate();
         }
     }

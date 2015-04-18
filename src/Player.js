@@ -15,12 +15,9 @@ var Player = (function() {
         this.container.position.x = game.width/2;
         this.container.position.y = game.height/2;
 
-        // Velocity is just a fancy way to make the position shift around...
-        // it's not really moving the player in the world cause we're going to
-        // cheat for all of our collision detection things.
-        this.velocity = new THREE.Vector2();
-        this.maxVelocity = 150;
-        this.accel = 3;
+        this.velocity = new THREE.Vector2(0, 0);
+        this.maxY = 800;
+        this.accel = 5;
     }
 
     Player.prototype.addTo = function(container) {
@@ -28,15 +25,12 @@ var Player = (function() {
     }
 
     Player.prototype.update = function(game, dt ) {
-        var shouldRotate = 0;
         if(game.input.keys[37]) {
             this.velocity.x -= this.accel;
-            shouldRotate = 1;
         }
 
         if(game.input.keys[39]) {
             this.velocity.x += this.accel;
-            shouldRotate = 1;
         }
 
         if(game.input.keys[38]) {
@@ -47,14 +41,12 @@ var Player = (function() {
             this.velocity.y -= this.accel;
         }
 
-        if(this.velocity.length() > this.maxVelocity) {
-            this.velocity.normalize();
-            this.velocity.multiplyScalar(this.maxVelocity);
-        }
+        // insert hokey garbage here.
+        this.velocity.y = THREE.Math.clamp( this.velocity.y, 0, this.maxY);
+        var maxX = this.velocity.y / 2;
+        this.velocity.x = THREE.Math.clamp( this.velocity.x, -maxX, maxX);
 
-        if(shouldRotate) {
-            this.playerQuad.mesh.rotation.z = this.velocity.x / this.maxVelocity / 5;
-        }
+        this.playerQuad.mesh.rotation.z = this.velocity.x / 400 / 5;
 
         this.container.position.x += this.velocity.x * dt / 1000;
         this.container.position.y -= this.velocity.y * dt / 1000;
