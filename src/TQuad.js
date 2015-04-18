@@ -4,6 +4,21 @@ var TQuad = (function() {
     // magic number makes the game look good.
     var scale = 2;
 
+    // Would be cool to dispose of these via ref count or something...
+    var materialCache = {};
+    function getMaterial(file) {
+        if( ! materialCache[file] ) {
+            materialCache[file] = new THREE.MeshBasicMaterial({
+                map: game.loader.get( file ),
+                color: 0xffffff,
+                transparent: true,
+                // In order to support flipping need two sides...
+                side: THREE.DoubleSide
+            });
+        }
+        return materialCache[file];
+    }
+
     // A textured quad.
     // ex:
     // new TQuad( game, {
@@ -22,15 +37,7 @@ var TQuad = (function() {
         self.animations =  {}
         options.animations.forEach(function( animation ) {
             self.animations[animation.name] = {
-                materials: animation.frames.map(function(file) {
-                    return new THREE.MeshBasicMaterial({
-                        map: game.loader.get( file ),
-                        color: 0xffffff,
-                        transparent: true,
-                        // In order to support flipping need two sides...
-                        side: THREE.DoubleSide
-                    });
-                }),
+                materials: animation.frames.map(getMaterial),
                 frameTime: animation.frameTime,
             }
         });
@@ -96,6 +103,11 @@ var TQuad = (function() {
         this.timer = 0;
         this.currentFrame = f;
         this.mesh.material = this.currentAnimationData().materials[this.currentFrame];
+    }
+
+    TQuad.prototype.dispose = function() {
+        this.mesh.geometry.dispose();
+        // TODO: Dispose materials when they're no longer in use?
     }
 
     return TQuad;
