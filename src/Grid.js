@@ -63,9 +63,12 @@ var Grid = (function() {
         this.game = game;
 
         this.container = new THREE.Object3D();
-        container.add(this.container);
-        this.container.position.x = game.width / 2 - (this.numTiles - 1)* this.size / 2;
-        this.container.position.y = game.height / 2 - (this.numTiles - 1)* this.size / 2;
+        this.centered = new THREE.Object3D();
+        container.add(this.centered);
+        this.centered.add(this.container);
+
+        this.centered.position.x = game.width / 2 - (this.numTiles - 1)* this.size / 2;
+        this.centered.position.y = game.height / 2 - (this.numTiles - 1)* this.size / 2;
 
         this.expandThreshold = 0.25;
         this.contractThreshold = 0.25;
@@ -102,7 +105,7 @@ var Grid = (function() {
         row.makeTile(this.game, this.numTiles-1, this.size, "not-road");
     }
 
-    Grid.prototype.rotate = function(difference)
+    Grid.prototype.rotate = function()
     {
         // First, lets get rid of the one we're rotating out.
         var firstRow = this.rows.shift();
@@ -113,13 +116,13 @@ var Grid = (function() {
         var lastRow = this.rows[this.rows.length - 1];
 
         // Then shift everything down
-        var yOffset = this.size + difference;
+        var yOffset = this.size;
         this.rows.forEach(function(row) {
             row.shiftY(yOffset);
         });
 
         // And fill in the gap
-        this.makeRow(lastRow, difference);
+        this.makeRow(lastRow, 0);
     }
 
     Grid.prototype.addRow = function(row) {
@@ -212,26 +215,18 @@ var Grid = (function() {
     }
 
     Grid.prototype.update = function(game, dt) {
-        this.timer = this.timer || 0;
-        this.offset = this.offset || 0;
-
-        this.timer += dt;
         var speed = 0.1;
         var step = speed * dt;
         this.container.position.y += step;
-        this.offset += step;
 
         // TODO: if the step is > size, then we will have problems.
         if( step > this.size ) {
             throw "Uh this is 'unimplemented'...";
         }
 
-        if(this.offset > this.size ) {
-            var difference = this.offset - this.size;
+        if(this.container.position.y > this.size ) {
             this.container.position.y -= this.size;
-            this.offset -= this.size;
-            this.rotate(difference);
-            this.timer = 0;
+            this.rotate();
         }
     }
 
