@@ -212,6 +212,16 @@ var Grid = (function() {
         return row;
     }
 
+    Grid.prototype.update = function(game, dt) {
+        this.timer = this.timer || 0;
+        this.timer += dt;
+
+        if(this.timer > 500) {
+            this.rotate();
+            this.timer = 0;
+        }
+    }
+
 
     return Grid;
 }());

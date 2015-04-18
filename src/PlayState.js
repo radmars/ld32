@@ -113,6 +113,8 @@ var PlayState = (function() {
         State.prototype.update.call(this, game, dt);
         var self = this;
 
+        this.grid.update(game, dt);
+
         this.updateScore(dt);
         this.superSecretCounter += dt;
         this.enemyQuad.mesh.rotation.z = -this.superSecretCounter / 500;
