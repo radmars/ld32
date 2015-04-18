@@ -21,7 +21,6 @@ var GridRow = (function() {
 
     GridRow.prototype.dispose = function() {
         this.tiles.forEach(function(tile) {
-            console.log("Disposing tile", tile);
             tile.dispose();
         });
     }
@@ -103,7 +102,7 @@ var Grid = (function() {
         row.makeTile(this.game, this.numTiles-1, this.size, "not-road");
     }
 
-    Grid.prototype.rotate = function()
+    Grid.prototype.rotate = function(difference)
     {
         // First, lets get rid of the one we're rotating out.
         var firstRow = this.rows.shift();
@@ -114,13 +113,13 @@ var Grid = (function() {
         var lastRow = this.rows[this.rows.length - 1];
 
         // Then shift everything down
-        var yOffset = this.size;
+        var yOffset = this.size + difference;
         this.rows.forEach(function(row) {
             row.shiftY(yOffset);
         });
 
         // And fill in the gap
-        this.makeRow(lastRow, 0);
+        this.makeRow(lastRow, difference);
     }
 
     Grid.prototype.addRow = function(row) {
@@ -214,10 +213,24 @@ var Grid = (function() {
 
     Grid.prototype.update = function(game, dt) {
         this.timer = this.timer || 0;
-        this.timer += dt;
+        this.offset = this.offset || 0;
 
-        if(this.timer > 500) {
-            this.rotate();
+        this.timer += dt;
+        var speed = 0.1;
+        var step = speed * dt;
+        this.container.position.y += step;
+        this.offset += step;
+
+        // TODO: if the step is > size, then we will have problems.
+        if( step > this.size ) {
+            throw "Uh this is 'unimplemented'...";
+        }
+
+        if(this.offset > this.size ) {
+            var difference = this.offset - this.size;
+            this.container.position.y -= this.size;
+            this.offset -= this.size;
+            this.rotate(difference);
             this.timer = 0;
         }
     }

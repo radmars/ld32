@@ -78,7 +78,7 @@ var PlayState = (function() {
         this.scene2d.add(this.playerTracker);
         this.scene2d.add(this.enemyTracker);
 
-        this.grid = new Grid(game, 5, this.scene2d);
+        this.grid = new Grid(game, 10, this.scene2d);
 
         game.renderer.setClearColor(0x2e2e2e, 1);
         game.renderer.autoClear = false;
