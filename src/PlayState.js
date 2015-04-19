@@ -54,8 +54,8 @@ var PlayState = (function() {
 
         this.player = new Player(game);
         this.player.addTo(this.courseTranslation);
-        this.enemy = new Enemy(game, this.player);
-        this.enemy.addTo(this.courseTranslation);
+        this.enemies = [];
+        this.enemyTimer = 3000;
 
         this.grid = new Grid(game, 9, this.courseTranslation);
 
@@ -106,25 +106,57 @@ var PlayState = (function() {
         var step = this.player.velocity.y * dt / 1000;
         this.courseTranslation.position.y += step;
 
+        this.enemyTimer -= dt;
+        if(this.enemyTimer <= 0 && this.enemies.length < 4) {
+            this.enemyTimer = 1500;
+            var enemy = new Enemy(game, this.player);
+            // NOTE: Useful debugging setting here
+            // enemy.dumb = true;
+            enemy.addTo(this.courseTranslation);
+            this.enemies.push(enemy);
+        }
+
         this.player.update(game, dt);
-        this.enemy.update(game, dt);
+        this.enemies.forEach(function(e) {
+            e.update(game, dt);
+        });
         this.checkCollision();
 
         this.grid.update(game, dt, step);
         this.updateScore(dt);
     }
 
+    function checkCars(a, b) {
+        var dir = b.position.clone();
+        dir.sub(a.position);
+        var ySize = 78;
+        var xSize = 58;
+        if( dir.x < xSize
+            && dir.x > -xSize
+            && dir.y < ySize
+            && dir.y > -ySize
+        ) {
+            b.velocity.x = (dir.x > 0 ? 1 : -1) * 30;
+            a.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
+            var xshift = (dir.x > 0 ? 1 : -1) * (xSize - Math.abs(dir.x)) / 2;
+            b.position.x += xshift;
+            //b.position.y -= offset.y / 2;
+            a.position.x -= xshift;
+            //a.position.y += offset.y / 2;
+        }
+
+    }
+
     PlayState.prototype.checkCollision = function() {
         var player = this.player;
-        [this.enemy].forEach(function(enemy) {
-            var dir = player.position.clone();
-            dir.sub(enemy.position);
-            var distance = dir.length();
-            dir.normalize();
-            if(distance < 60) {
-                player.velocity.x = (dir.x > 0 ? 1 : -1) * 20;
-                enemy.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
-            }
+        var enemies = this.enemies;
+        enemies.forEach(function(enemy) {
+            checkCars(enemy, player);
+            enemies.forEach(function(other) {
+                if(enemy != other) {
+                    checkCars(enemy, other);
+                }
+            });
         });
     }
 

@@ -45,6 +45,7 @@ var GridTile = (function() {
 
         this.quad.mesh.position.x = position.x;
         this.quad.mesh.position.y = 0;
+        this.quad.mesh.position.z = -1;
     }
 
     GridTile.prototype.dispose = function() {

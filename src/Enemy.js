@@ -7,9 +7,9 @@ var Enemy = (function() {
 
         this.player = player;
 
-        this.accel = 5;
         this.position.x = Math.random() * game.width;
-        this.position.y = game.height;
+        this.position.y = player.position.y + game.height/2 + 48;
+        this.velocity.y = player.velocity.y - 10;
         this.maxY = player.maxY + 50;
     }
 
@@ -67,7 +67,11 @@ var Enemy = (function() {
 
         this.velocity.y = THREE.Math.clamp(this.velocity.y, -this.maxY, this.maxY);
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
-        //this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
+        this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
+        if(this.dumb) {
+            this.velocity.y = -250;
+            this.velocity.x = 0;
+        }
 
         this.rotation.z = this.velocity.x / 400 / 5;
         this.position.x += this.velocity.x * dt / 1000;
