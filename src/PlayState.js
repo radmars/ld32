@@ -9,6 +9,10 @@ var PlayState = (function() {
     function PlayState() {
         State.call(this);
         this.assets = [
+            { name: 'assets/gfx/trail/1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/trail/2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/trail/3.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/trail/4.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/enemy1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/lazer.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/player.png', type: 'img', callback: pixelize },

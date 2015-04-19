@@ -16,6 +16,7 @@ var Player = (function() {
     Player.prototype = Object.create(Car.prototype);
 
     Player.prototype.update = function(game, dt ) {
+        Car.prototype.update.call(this, game, dt);
         if(game.input.keys[37]) {
             this.velocity.x -= this.accel;
         }

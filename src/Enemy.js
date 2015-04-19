@@ -16,6 +16,7 @@ var Enemy = (function() {
     Enemy.prototype = Object.create(Car.prototype);
 
     Enemy.prototype.update = function(game, dt ) {
+        Car.prototype.update.call(this, game, dt);
         var shouldRotate = 0;
         var player = this.player;
         var enemyPosition = this.position;
