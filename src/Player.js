@@ -1,28 +1,19 @@
 var Player = (function() {
     "use strict";
     function Player(game) {
-        this.container = new THREE.Object3D();
-
-        this.playerQuad = new TQuad(game, {
-            animations: [{
-                frames: ['assets/gfx/player.png'],
-                frameTime: 100,
-                name: 'default',
-            }],
-            current: 'default',
+        Car.call(this, game, {
+            asset: 'assets/gfx/player.png',
         });
-        this.container.add(this.playerQuad.mesh);
-        this.container.position.x = game.width/2;
-        this.container.position.y = game.height/2;
+
+        this.position.x = game.width/2;
+        this.position.y = game.height/2;
 
         this.velocity = new THREE.Vector2(0, 0);
         this.maxY = 800;
         this.accel = 5;
     }
 
-    Player.prototype.addTo = function(container) {
-        container.add(this.container);
-    }
+    Player.prototype = Object.create(Car.prototype);
 
     Player.prototype.update = function(game, dt ) {
         if(game.input.keys[37]) {
@@ -46,10 +37,10 @@ var Player = (function() {
         var maxX = this.velocity.y / 2;
         this.velocity.x = THREE.Math.clamp( this.velocity.x, -maxX, maxX);
 
-        this.playerQuad.mesh.rotation.z = this.velocity.x / 400 / 5;
+        this.rotation.z = this.velocity.x / 400 / 5;
 
-        this.container.position.x += this.velocity.x * dt / 1000;
-        this.container.position.y -= this.velocity.y * dt / 1000;
+        this.position.x += this.velocity.x * dt / 1000;
+        this.position.y -= this.velocity.y * dt / 1000;
 
     }
 
