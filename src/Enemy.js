@@ -67,7 +67,7 @@ var Enemy = (function() {
 
         this.velocity.y = THREE.Math.clamp(this.velocity.y, -this.maxY, this.maxY);
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
-        this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
+        //this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
 
         this.rotation.z = this.velocity.x / 400 / 5;
         this.position.x += this.velocity.x * dt / 1000;

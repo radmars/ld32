@@ -108,8 +108,24 @@ var PlayState = (function() {
 
         this.player.update(game, dt);
         this.enemy.update(game, dt);
+        this.checkCollision();
+
         this.grid.update(game, dt, step);
         this.updateScore(dt);
+    }
+
+    PlayState.prototype.checkCollision = function() {
+        var player = this.player;
+        [this.enemy].forEach(function(enemy) {
+            var dir = player.position.clone();
+            dir.sub(enemy.position);
+            var distance = dir.length();
+            dir.normalize();
+            if(distance < 60) {
+                player.velocity.x = (dir.x > 0 ? 1 : -1) * 20;
+                enemy.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
+            }
+        });
     }
 
     PlayState.prototype.resize = function(width, height) {
