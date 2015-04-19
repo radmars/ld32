@@ -85,10 +85,14 @@ var Car = (function() {
             this.lazerQuad.mesh.position.x += this.shotActive.x * dt / 1000;
             this.lazerQuad.mesh.position.y += this.shotActive.y * dt / 1000;
             if(this.lazerQuad.mesh.position.x < 0 || this.lazerQuad.mesh.position.x > game.width){
-                this.shotActive = null;
-                this.container.remove(this.lazerQuad.mesh);
+                this.removeLazer();
             }
         }
+    }
+
+    Car.prototype.removeLazer = function() {
+        this.shotActive = null;
+        this.globalContainer.remove(this.lazerQuad.mesh);
     }
 
     Car.prototype.addTo = function(container) {

@@ -159,12 +159,27 @@ var PlayState = (function() {
         var player = this.player;
         var enemies = this.enemies;
         enemies.forEach(function(enemy) {
+            // enemy + player
             checkObjectCollision(enemy, player, 58, 78, true);
+
+            // enemy + enemy
             enemies.forEach(function(other) {
                 if(enemy != other) {
                     checkObjectCollision(enemy, other, 58, 78, true);
                 }
             });
+
+            // enemy lazer + player
+            if (enemy.shotActive && checkObjectCollision(enemy.lazerQuad.mesh, player, 53, 46, false)) {
+                console.log("enemy hit player");
+                enemy.removeLazer();
+            }
+
+            // player lazer + enemy
+            if (player.shotActive && checkObjectCollision(player.lazerQuad.mesh, enemy, 53, 46, false)) {
+                console.log("player hit enemy");
+                player.removeLazer();
+            }
         });
     }
 
