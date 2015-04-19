@@ -126,35 +126,39 @@ var PlayState = (function() {
         this.updateScore(dt);
     }
 
-    function checkCars(a, b) {
+    // sizes = half of obj1 + half of obj2
+    function checkObjectCollision(a, b, xSize, ySize, shift) {
         var dir = b.position.clone();
         dir.sub(a.position);
-        var ySize = 78;
-        var xSize = 58;
         if( dir.x < xSize
             && dir.x > -xSize
             && dir.y < ySize
             && dir.y > -ySize
         ) {
-            b.velocity.x = (dir.x > 0 ? 1 : -1) * 30;
-            a.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
-            var xshift = (dir.x > 0 ? 1 : -1) * (xSize - Math.abs(dir.x)) / 2;
-            b.position.x += xshift;
-            //b.position.y -= offset.y / 2;
-            a.position.x -= xshift;
-            //a.position.y += offset.y / 2;
+            if (shift) {
+                b.velocity.x = (dir.x > 0 ? 1 : -1) * 30;
+                a.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
+                var xshift = (dir.x > 0 ? 1 : -1) * (xSize - Math.abs(dir.x)) / 2;
+                b.position.x += xshift;
+                //b.position.y -= offset.y / 2;
+                a.position.x -= xshift;
+                //a.position.y += offset.y / 2;
+            }
+            return true;
         }
-
+        else {
+            return false;
+        }
     }
 
     PlayState.prototype.checkCollision = function() {
         var player = this.player;
         var enemies = this.enemies;
         enemies.forEach(function(enemy) {
-            checkCars(enemy, player);
+            checkObjectCollision(enemy, player, 58, 78, true);
             enemies.forEach(function(other) {
                 if(enemy != other) {
-                    checkCars(enemy, other);
+                    checkObjectCollision(enemy, other, 58, 78, true);
                 }
             });
         });
