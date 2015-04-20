@@ -8,9 +8,9 @@ var Enemy = (function() {
         this.player = player;
 
         this.position.x = Math.random() * (game.width/3);
-        this.position.y = player.position.y + game.height/2 + 48;
+        this.position.y = player.position.y + game.height + 48;
         this.velocity.y = player.velocity.y - 2;
-        this.maxY = player.maxY + 300 + Math.random()*50;
+        this.maxY = player.maxY + 320 + Math.random()*50;
     }
 
     Enemy.prototype = Object.create(Car.prototype);
@@ -76,7 +76,7 @@ var Enemy = (function() {
                     this.velocity.y += .1;
                 }
                 else {
-                    this.velocity.y -= 5;
+                    this.velocity.y -= 8;
                 }
             }
         }
