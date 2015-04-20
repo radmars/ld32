@@ -82,7 +82,7 @@ var PlayState = (function() {
 
         this.grid = new Grid(game, 9, this.courseTranslation);
 
-        game.renderer.setClearColor(0x2e2e2e, 1);
+        game.renderer.setClearColor(0x000000, 1);
         game.renderer.autoClear = false;
 
         if (!game.songStarted) {
@@ -104,6 +104,19 @@ var PlayState = (function() {
         this.blindOverlay.mesh.position.y = game.height/2;
         this.blindOverlay.mesh.position.z = 3;
         this.scene2d.add(this.blindOverlay.mesh);
+
+        this.bg = new TQuad(game, {
+            animations: [{
+                frames: ['assets/intro/bg.png'],
+                frameTime: 32,
+            }]
+        });
+        this.bg.mesh.position.x = game.width/2;
+        this.bg.mesh.position.y = game.height/2;
+        this.bg.mesh.position.z = -5;
+        this.spaceTranslation = new THREE.Object3D();
+        this.spaceTranslation.add(this.bg.mesh);
+        this.scene2d.add(this.spaceTranslation);
     };
 
     function setBlindOverlayOpacity(overlay, opacity) {
@@ -176,6 +189,25 @@ var PlayState = (function() {
             }
         }
         this.courseTranslation.position.y += step;
+        this.spaceTranslation.position.y += step/20;
+        if (!this.spaceCounter) {
+            this.spaceCounter = 0;
+        }
+        this.spaceCounter += step/20;
+
+        if (this.spaceCounter > game.height/2) {
+            this.bg = new TQuad(game, {
+                animations: [{
+                    frames: ['assets/intro/bg.png'],
+                    frameTime: 32,
+                }]
+            });
+            this.bg.mesh.position.x = game.width/2;
+            this.bg.mesh.position.y = game.height/2 - this.spaceTranslation.position.y;
+            this.bg.mesh.position.z = -5;
+            this.spaceTranslation.add(this.bg.mesh);
+            this.spaceCounter = 0;
+        }
 
         this.enemyTimer -= dt;
         if(this.enemyTimer <= 0 && this.enemies.length < 4) {
