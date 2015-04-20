@@ -41,13 +41,13 @@ var PlayState = (function() {
             { name: 'assets/gfx/blind1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blind2.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blind3.png', type: 'img', callback: pixelize },
-        ].concat(mapSoundAsset("playeraccel"))
-            .concat(mapSoundAsset("playerdecel"))
-            .concat(mapSoundAsset("playeridle"))
-            .concat(mapSoundAsset("enemyaccel"))
-            .concat(mapSoundAsset("enemydecel"))
-            .concat(mapSoundAsset("enemyidle"))
-            .concat(mapSoundAsset("laser"))
+        ].concat(mapSoundAsset("playeraccel", 0.0))
+            .concat(mapSoundAsset("playerdecel", 0.0))
+            .concat(mapSoundAsset("playeridle", 0.0))
+            .concat(mapSoundAsset("enemyaccel", 0.5))
+            .concat(mapSoundAsset("enemydecel", 0.5))
+            .concat(mapSoundAsset("enemyidle", 0.5))
+            .concat(mapSoundAsset("playerlaser"))
             .concat(mapSoundAsset("enemylaser"))
             .concat(mapSoundAsset("hit", 0.1))
             .concat(mapSoundAsset("hp", 0.2))
@@ -339,6 +339,11 @@ var PlayState = (function() {
 
     PlayState.prototype.onStop = function(game) {
         game.renderer.autoClear = true;
+        this.enemies.forEach(function(enemy){
+            if (enemy.curSound) {
+                enemy.curSound.stop();
+            }
+        });
     };
 
     PlayState.prototype.render = function(game) {

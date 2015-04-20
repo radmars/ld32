@@ -11,6 +11,8 @@ var Enemy = (function() {
         this.position.y = player.position.y + game.height + 48;
         this.velocity.y = player.velocity.y - 2;
         this.maxY = player.maxY + 320 + Math.random()*50;
+
+        this.soundPrefix = "enemy";
     }
 
     Enemy.prototype = Object.create(Car.prototype);
@@ -65,18 +67,22 @@ var Enemy = (function() {
                 // slow down??!?!?
                 if(distance.y < 150) {
                     this.velocity.y += 5;
+                    this.changeSoundState("decel");
                 }
                 else {
                     // try to match their velocity..
+                    this.changeSoundState("idle");
                 }
             }
             else {
                 // within closing distance slow down, otherwise speed up...
                 if(distance.y < 150) {
                     this.velocity.y += .1;
+                    this.changeSoundState("idle");
                 }
                 else {
                     this.velocity.y -= 8;
+                    this.changeSoundState("accel");
                 }
             }
         }
@@ -84,17 +90,19 @@ var Enemy = (function() {
             if(ahead) {
                 // maintain velocity... ?
                 this.velocity.y -= 5;
+                this.changeSoundState("accel");
             }
             else {
                 // speed up... until we get to closing distance..
                 this.velocity.y -= 13 + Math.random();
+                this.changeSoundState("accel");
             }
         }
 
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
         this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
 
-        if(distance.y < 30) {
+        if(Math.abs(distance.y) < 15) {
             this.shootLazer(onLeft);
         }
     }

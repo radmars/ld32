@@ -13,6 +13,8 @@ var Player = (function() {
         this.minY = 200;
         this.Yaccel = 15;
         this.Xaccel = 60;
+
+        this.soundPrefix = "player";
     }
 
     Player.prototype = Object.create(Car.prototype);
@@ -33,18 +35,30 @@ var Player = (function() {
             this.velocity.x += this.Xaccel;
         }
 
+        var changeSpeed = false;
+
+        // accel
         if(game.input.keys[38]) {
             this.velocity.y += this.Yaccel;
             if (this.position.y + this.globalContainer.position.y > 0) {
                 this.position.y -= 1.2;
             }
+            changeSpeed = true;
+            this.changeSoundState("accel");
         }
 
+        // decel
         if(game.input.keys[40]) {
             this.velocity.y -= this.Yaccel;
             if (this.position.y + this.globalContainer.position.y < game.height) {
                 this.position.y += 3;
             }
+            changeSpeed = true;
+            this.changeSoundState("decel");
+        }
+
+        if (!changeSpeed) {
+            this.changeSoundState("idle");
         }
 
         // insert hokey garbage here.

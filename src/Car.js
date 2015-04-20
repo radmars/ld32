@@ -35,8 +35,9 @@ var Car = (function() {
 
     Car.prototype.shootLazer = function(onLeft) {
         if(this.shootCooldown <= 0) {
-            this.shootCooldown = 1000;
-            this.lazerQuad.mesh.position.x = this.position.x;
+            game.loader.get("audio/" + this.soundPrefix + "laser").play();
+            this.shootCooldown = 1500;
+            this.lazerQuad.mesh.position.x = this.position.x + (onLeft ? -50 : 50);
             this.lazerQuad.mesh.position.y = this.position.y;
             this.globalContainer.add(this.lazerQuad.mesh);
             this.shotActive = {
@@ -133,6 +134,10 @@ var Car = (function() {
     }
 
     Car.prototype.kill = function(force) {
+        if (this.curSound) {
+            this.curSound.stop();
+        }
+
         if (!force && this.hp <= 0) {
             return;
         }
@@ -164,6 +169,23 @@ var Car = (function() {
             this.explode = null;
             container.remove(explode.mesh);
         });
+    }
+
+    Car.prototype.changeSoundState = function(state) {
+        if (this.soundState !== state) {
+            this.soundState = state;
+
+            if (this.curSound) {
+                var s = this.curSound;
+                s.fade(/*s.origVolume*/1.0, 0.0, 300, function() {
+                    s.stop();
+                });
+            }
+
+            var newSound = game.loader.get("audio/" + this.soundPrefix + state);
+            newSound.loop(true).play().fade(0.0, /*newSound.origVolume*/1.0, 300);
+            this.curSound = newSound;
+        }
     }
 
     return Car;
