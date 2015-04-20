@@ -146,11 +146,23 @@ var PlayState = (function() {
 
     PlayState.prototype.update = function(game, dt){
         State.prototype.update.call(this, game, dt);
+
+        if (this.deathTimer && this.deathTimer <= 0) {
+            game.setState(new PlayState());
+        }
+
         var self = this;
         var step = this.player.velocity.y * dt / 1000;
-        if (this.player.hp > 0) {
-            this.courseTranslation.position.y += step;
+        if (this.player.hp <= 0) {
+            step = 0;
+            if (!this.deathTimer) {
+                this.deathTimer = 3000;
+            }
+            else {
+                this.deathTimer -= dt;
+            }
         }
+        this.courseTranslation.position.y += step;
 
         this.enemyTimer -= dt;
         if(this.enemyTimer <= 0 && this.enemies.length < 4) {
