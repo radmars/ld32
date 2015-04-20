@@ -13,6 +13,11 @@ var PlayState = (function() {
             { name: 'assets/gfx/trail/2.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/trail/3.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/trail/4.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/explode/1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/explode/2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/explode/3.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/explode/4.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/explode/5.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/enemy1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/lazer.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/player.png', type: 'img', callback: pixelize },
@@ -36,7 +41,18 @@ var PlayState = (function() {
             { name: 'assets/gfx/blind1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blind2.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blind3.png', type: 'img', callback: pixelize },
-        ]
+        ].concat(mapSoundAsset("playeraccel"))
+            .concat(mapSoundAsset("playerdecel"))
+            .concat(mapSoundAsset("playeridle"))
+            .concat(mapSoundAsset("enemyaccel"))
+            .concat(mapSoundAsset("enemydecel"))
+            .concat(mapSoundAsset("enemyidle"))
+            .concat(mapSoundAsset("laser"))
+            .concat(mapSoundAsset("enemylaser"))
+            .concat(mapSoundAsset("hit", 0.1))
+            .concat(mapSoundAsset("hp", 0.2))
+            .concat(mapSoundAsset("explosion", 0.2))
+            .concat(mapSoundAsset("ld32", 0.65));
     };
 
     PlayState.prototype = Object.create(State.prototype);
@@ -132,13 +148,16 @@ var PlayState = (function() {
         State.prototype.update.call(this, game, dt);
         var self = this;
         var step = this.player.velocity.y * dt / 1000;
-        this.courseTranslation.position.y += step;
+        if (this.player.hp > 0) {
+            this.courseTranslation.position.y += step;
+        }
 
         this.enemyTimer -= dt;
         if(this.enemyTimer <= 0 && this.enemies.length < 4) {
-            this.enemyTimer = 1500;
+            this.enemyTimer = 150;
             // enemy spawn
             var enemy = new Enemy(game, this.player);
+            console.log("enemy spawned at " + enemy.position.x + ", " +enemy.position.y);
             // NOTE: Useful debugging setting here
             // enemy.dumb = true;
             enemy.addTo(this.courseTranslation);
@@ -150,6 +169,13 @@ var PlayState = (function() {
             e.update(game, dt);
         });
         this.checkCollision();
+
+        for (var i = 0; i < this.enemies.length; i++) {
+            if (this.enemies[i].hp <= 0 && !this.enemies[i].explode) {
+                this.enemies.splice(i, 1);
+                i--;
+            }
+        }
 
         this.grid.update(game, dt, step);
         this.updateScore(dt);
@@ -209,7 +235,10 @@ var PlayState = (function() {
 
         enemies.forEach(function(enemy) {
             // enemy + player
-            checkObjectCollision(enemy, player, 58, 78, true);
+            if (checkObjectCollision(enemy, player, 58, 78, true)) {
+                enemy.hit(0.2);
+                player.hit(0.1);
+            }
 
             // enemy + enemy
             enemies.forEach(function(other) {
@@ -256,6 +285,10 @@ var PlayState = (function() {
     }
 
     function checkCollisionWithRoad(car) {
+        if (car.hp <= 0) {
+            return;
+        }
+
         grid.rows.forEach(function(row) {
             row.tiles.forEach(function(tile) {
                 if (tile.type == "not-road") {
@@ -264,7 +297,7 @@ var PlayState = (function() {
                     translation.y = grid.offset + row.container.position.y;
 
                     if (checkObjectCollision(car, tile.quad.mesh, 77, 87, false, null, translation)) {
-                        car.hit(100);
+                        car.kill();
                     }
                 }
             });

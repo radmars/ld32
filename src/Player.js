@@ -18,9 +18,13 @@ var Player = (function() {
     Player.prototype = Object.create(Car.prototype);
 
     Player.prototype.update = function(game, dt ) {
-        console.log("pos diff is " + (this.position.y + this.globalContainer.position.y));
-
+        this.updateLazer(dt);
         Car.prototype.update.call(this, game, dt);
+
+        if (this.hp <= 0) {
+            return;
+        }
+
         if(game.input.keys[37]) {
             this.velocity.x -= this.Xaccel;
         }
@@ -69,8 +73,6 @@ var Player = (function() {
                 this.shotActive.y = this.velocity.y * -1.0;
             }
         }
-
-        this.updateLazer(dt);
     }
 
     return Player;

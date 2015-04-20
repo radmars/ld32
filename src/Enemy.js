@@ -7,16 +7,21 @@ var Enemy = (function() {
 
         this.player = player;
 
-        this.position.x = Math.random() * game.width;
+        this.position.x = Math.random() * (game.width/3);
         this.position.y = player.position.y + game.height/2 + 48;
         this.velocity.y = player.velocity.y - 2;
-        this.maxY = player.maxY + 320 + Math.random()*50;
+        this.maxY = player.maxY + 300 + Math.random()*50;
     }
 
     Enemy.prototype = Object.create(Car.prototype);
 
     Enemy.prototype.update = function(game, dt) {
         Car.prototype.update.call(this, game, dt);
+        this.updateLazer(dt);
+
+        if (this.hp <= 0) {
+            return;
+        }
 
         if (this.blindDir) {
             this.velocity.x += THREE.Math.clamp(this.blindDir, -5, 5);
@@ -35,8 +40,6 @@ var Enemy = (function() {
         this.rotation.z = this.velocity.x / 400 / 5;
         this.position.x += this.velocity.x * dt / 1000;
         this.position.y += this.velocity.y * dt / 1000;
-
-        this.updateLazer(dt);
     }
 
     Enemy.prototype.runAI = function(dt) {
@@ -61,7 +64,7 @@ var Enemy = (function() {
             if(ahead) {
                 // slow down??!?!?
                 if(distance.y < 150) {
-                    this.velocity.y += 4;
+                    this.velocity.y += 5;
                 }
                 else {
                     // try to match their velocity..

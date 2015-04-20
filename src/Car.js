@@ -47,6 +47,13 @@ var Car = (function() {
 
     Car.prototype.update = function(game, dt) {
         this.smokes.forEach(function(s){ s.update(dt) });
+        if (this.explode) {
+            this.explode.update(dt);
+        }
+
+        if (this.hp <= 0) {
+            return;
+        }
 
         this.smokeTimer += dt;
         if(this.smokeTimer > 100) {
@@ -103,10 +110,52 @@ var Car = (function() {
     }
 
     Car.prototype.hit = function(damage) {
-        this.hp -= damage;
         if (this.hp <= 0) {
-            //console.log("he ded");
+            return;
         }
+
+        this.hp -= damage;
+
+        if (this.hp <= 0) {
+            this.kill(true);
+        }
+        else {
+            game.loader.get("audio/hit").play();
+        }
+    }
+
+    Car.prototype.kill = function(force) {
+        if (!force && this.hp <= 0) {
+            return;
+        }
+
+        this.hp = -1;
+        game.loader.get("audio/explosion").play();
+        this.container.remove(this.quad.mesh);
+        var explode = new TQuad(game, {
+            animations: [{
+                frames: [
+                    'assets/gfx/explode/1.png',
+                    'assets/gfx/explode/2.png',
+                    'assets/gfx/explode/3.png',
+                    'assets/gfx/explode/4.png',
+                    'assets/gfx/explode/5.png',
+                ],
+                frameTime: 100,
+                name: 'trail',
+            }],
+        });
+        explode.mesh.position.x = this.position.x;
+        explode.mesh.position.y = this.position.y;
+        explode.mesh.position.z = this.position.z - .5;
+
+        var container = this.globalContainer;
+        container.add(explode.mesh);
+        this.explode = explode;
+        explode.setAnimation('trail', function() {
+            this.explode = null;
+            container.remove(explode.mesh);
+        });
     }
 
     return Car;
