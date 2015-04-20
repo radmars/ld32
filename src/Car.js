@@ -29,7 +29,8 @@ var Car = (function() {
         this.position = this.container.position;
         this.rotation = this.quad.mesh.rotation;
 
-        this.hp = 5;
+        this.maxHP = 5;
+        this.hp = this.maxHP;
     }
 
     Car.prototype.shootLazer = function(onLeft) {
@@ -121,6 +122,13 @@ var Car = (function() {
         }
         else {
             game.loader.get("audio/hit").play();
+        }
+    }
+
+    Car.prototype.heal = function(heal) {
+        this.hp += heal;
+        if (this.hp >= this.maxHP) {
+            this.hp = this.maxHP;
         }
     }
 

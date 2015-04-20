@@ -113,11 +113,11 @@ var PlayState = (function() {
     }
 
     PlayState.prototype.calculateScore = function() {
-        return 100;
+        return Math.round(this.courseTranslation.position.y / 10);
     }
 
     PlayState.prototype.updateScore = function(dt) {
-        var score = this.calculateScore()
+        var score = this.calculateScore();
         // attach properties like a jerk
         if( ( !this.scoreObject ) || (this.scoreObject && this.scoreObject.score != score ) ) {
             if(this.scoreObject) {
@@ -141,6 +141,19 @@ var PlayState = (function() {
             this.speedo.position.y = 100;
             this.speedo.position.z = 4;
             this.scene2d.add(this.speedo);
+        }
+        if( !this.hpo || this.hpo.hp != this.player.hp ) {
+            if(this.hpo){
+                this.scene2d.remove(this.hpo);
+            }
+            var hp = this.player.hp;
+            var hpDisplay = Math.round(hp * 10);
+            this.hpo = TextRenderer.render(this.font, "HP: " + hpDisplay);
+            this.hpo.hp = hp;
+            this.hpo.position.x = 0;
+            this.hpo.position.y = 50;
+            this.hpo.position.z = 4;
+            this.scene2d.add(this.hpo);
         }
     }
 
