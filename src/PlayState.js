@@ -33,6 +33,9 @@ var PlayState = (function() {
             { name: 'assets/gfx/road-right-in2.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/road-right-out1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/road-right-out2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/blind1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/blind2.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/blind3.png', type: 'img', callback: pixelize },
         ]
     };
 
@@ -70,7 +73,28 @@ var PlayState = (function() {
             //game.loader.get("audio/ld31").loop(true).play();
             game.songStarted = true;
         }
+
+        this.blindOverlay = new TQuad(game, {
+            animations: [{
+                frames: ['assets/gfx/blind1.png',
+                        'assets/gfx/blind2.png',
+                        'assets/gfx/blind3.png'],
+                frameTime: 32,
+            }]
+        });
+
+        setBlindOverlayOpacity(this.blindOverlay, 0.0);
+        this.blindOverlay.mesh.position.x = game.width/2;
+        this.blindOverlay.mesh.position.y = game.height/2;
+        this.blindOverlay.mesh.position.z = 3;
+        this.scene2d.add(this.blindOverlay.mesh);
     };
+
+    function setBlindOverlayOpacity(overlay, opacity) {
+        overlay.currentAnimationData().materials.forEach(function(mat) {
+            mat.opacity = opacity;
+        });
+    }
 
     PlayState.prototype.calculateScore = function() {
         return 100;
@@ -129,6 +153,12 @@ var PlayState = (function() {
 
         this.grid.update(game, dt, step);
         this.updateScore(dt);
+
+        this.blindOverlay.update(dt);
+        var opacity = this.blindOverlay.currentAnimationData().materials[0].opacity;
+        if (opacity > 0.0) {
+            setBlindOverlayOpacity(this.blindOverlay, opacity - dt / 2000);
+        }
     }
 
     function checkObjectCollision(a, b, xSize, ySize, shift, aTranslation, bTranslation) {
@@ -175,6 +205,7 @@ var PlayState = (function() {
     PlayState.prototype.checkCollision = function() {
         var player = this.player;
         var enemies = this.enemies;
+        var blind = this.blindOverlay;
 
         enemies.forEach(function(enemy) {
             // enemy + player
@@ -190,6 +221,7 @@ var PlayState = (function() {
             // enemy lazer + player
             if (enemy.shotActive && checkObjectCollision(enemy.lazerQuad.mesh, player, 53, 46, false)) {
                 console.log("enemy hit player");
+                setBlindOverlayOpacity(blind, 1.0);
                 enemy.removeLazer();
             }
 
@@ -198,6 +230,8 @@ var PlayState = (function() {
                 console.log("player hit enemy");
                 player.removeLazer();
             }
+
+            checkCollisionWithRoad(enemy);
         });
 
         grid.roadblocks.forEach(function(block) {
@@ -205,16 +239,32 @@ var PlayState = (function() {
             translation.x = 0;
             translation.y = grid.offset;
             if (checkObjectCollision(player, block.mesh, 44, 45, true, null, translation)) {
-                console.log("POW");
                 grid.removeRoadblock(block);
                 player.hit(1);
             }
 
             enemies.forEach(function(enemy) {
                 if (checkObjectCollision(enemy, block.mesh, 44, 45, true, null, translation)) {
-                    console.log("POWEEE");
                     grid.removeRoadblock(block);
                     enemy.hit(1);
+                }
+            });
+        });
+
+        checkCollisionWithRoad(player);
+    }
+
+    function checkCollisionWithRoad(car) {
+        grid.rows.forEach(function(row) {
+            row.tiles.forEach(function(tile) {
+                if (tile.type == "not-road") {
+                    var translation = new THREE.Vector2();
+                    translation.x = 0;
+                    translation.y = grid.offset + row.container.position.y;
+
+                    if (checkObjectCollision(car, tile.quad.mesh, 77, 87, false, null, translation)) {
+                        car.hit(100);
+                    }
                 }
             });
         });

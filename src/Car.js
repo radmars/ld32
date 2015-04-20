@@ -105,7 +105,7 @@ var Car = (function() {
     Car.prototype.hit = function(damage) {
         this.hp -= damage;
         if (this.hp <= 0) {
-            console.log("he ded");
+            //console.log("he ded");
         }
     }
 
