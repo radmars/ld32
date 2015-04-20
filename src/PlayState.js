@@ -228,6 +228,7 @@ var PlayState = (function() {
             // player lazer + enemy
             if (player.shotActive && checkObjectCollision(player.lazerQuad.mesh, enemy, 53, 46, false)) {
                 console.log("player hit enemy");
+                enemy.blind(player.shotActive.x);
                 player.removeLazer();
             }
 

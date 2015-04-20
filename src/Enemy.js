@@ -15,9 +15,31 @@ var Enemy = (function() {
 
     Enemy.prototype = Object.create(Car.prototype);
 
-    Enemy.prototype.update = function(game, dt ) {
+    Enemy.prototype.update = function(game, dt) {
         Car.prototype.update.call(this, game, dt);
-        var shouldRotate = 0;
+
+        if (this.blindDir) {
+            this.velocity.x += THREE.Math.clamp(this.blindDir, -5, 5);
+        }
+        else {
+            this.runAI(dt);
+        }
+
+        this.velocity.y = THREE.Math.clamp(this.velocity.y, -this.maxY, this.maxY);
+        this.velocity.x = THREE.Math.clamp(this.velocity.x, -150, 150);
+        if(this.dumb) {
+            this.velocity.y = -250;
+            this.velocity.x = 0;
+        }
+
+        this.rotation.z = this.velocity.x / 400 / 5;
+        this.position.x += this.velocity.x * dt / 1000;
+        this.position.y += this.velocity.y * dt / 1000;
+
+        this.updateLazer(dt);
+    }
+
+    Enemy.prototype.runAI = function(dt) {
         var player = this.player;
         var enemyPosition = this.position;
         var playerPosition = player.position;
@@ -66,22 +88,16 @@ var Enemy = (function() {
             }
         }
 
-        this.velocity.y = THREE.Math.clamp(this.velocity.y, -this.maxY, this.maxY);
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
         this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
-        if(this.dumb) {
-            this.velocity.y = -250;
-            this.velocity.x = 0;
-        }
-
-        this.rotation.z = this.velocity.x / 400 / 5;
-        this.position.x += this.velocity.x * dt / 1000;
-        this.position.y += this.velocity.y * dt / 1000;
 
         if(distance.y < 30) {
             this.shootLazer(onLeft);
         }
-        this.updateLazer(dt);
+    }
+
+    Enemy.prototype.blind = function(blindDir) {
+        this.blindDir = blindDir;
     }
 
     return Enemy;

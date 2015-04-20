@@ -43,6 +43,23 @@ var Player = (function() {
         this.position.x += this.velocity.x * dt / 1000;
         this.position.y -= this.velocity.y * dt / 1000;
 
+        if(game.input.keys[88]) {
+            this.shootLazer(true);
+            // weird hack for laser velocity???
+            if (this.shotActive) {
+                this.shotActive.y = this.velocity.y * -1.0;
+            }
+        }
+
+        if(game.input.keys[67]) {
+            this.shootLazer(false);
+            // bluuuuughghgh
+            if (this.shotActive) {
+                this.shotActive.y = this.velocity.y * -1.0;
+            }
+        }
+
+        this.updateLazer(dt);
     }
 
     return Player;
