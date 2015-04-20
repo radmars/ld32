@@ -28,6 +28,8 @@ var Car = (function() {
         this.velocity = new THREE.Vector2();
         this.position = this.container.position;
         this.rotation = this.quad.mesh.rotation;
+
+        this.hp = 5;
     }
 
     Car.prototype.shootLazer = function(onLeft) {
@@ -100,6 +102,12 @@ var Car = (function() {
         this.globalContainer = container;
     }
 
+    Car.prototype.hit = function(damage) {
+        this.hp -= damage;
+        if (this.hp <= 0) {
+            console.log("he ded");
+        }
+    }
 
     return Car;
 }());

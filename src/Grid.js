@@ -71,10 +71,12 @@ var Grid = (function() {
 
         this.expandThreshold = 0.25;
         this.contractThreshold = 0.25;
+        this.roadblockThreshold = 0.55;
         this.counter = 0;
         this.travelled = 0;
 
         this.rows = [];
+        this.roadblocks = [];
 
         // initial row
         this.makeInitialRow();
@@ -209,14 +211,66 @@ var Grid = (function() {
     }
 
     Grid.prototype.update = function(game, dt, step) {
-        this.travelled += step
+        this.travelled += step;
 
         while(this.travelled > this.size ) {
             this.travelled -= this.size;
             this.rotate();
+
+            if (Math.random() < this.roadblockThreshold) {
+                this.makeRoadblock();
+            }
+        }
+
+        this.roadblocks.forEach(function(block) {
+            block.travelled += step;
+        });
+        if (this.roadblocks.length > 0 && this.roadblocks[0].travelled > this.size * (this.numTiles+10)) {
+            var block = this.roadblocks.pop();
+            block.row.container.remove(block);
         }
     }
 
+    Grid.prototype.makeRoadblock = function() {
+        var block = new TQuad(game, {
+            animations: [{
+                frames: ['assets/gfx/blockage1.png'],
+                frameTime: 100,
+            }]
+        });
+
+        var lastRow = this.rows[this.rows.length-1];
+        var candidates = [];
+        for(var i = 0; i < lastRow.tiles.length; i++) {
+            if (lastRow.tiles[i].type == "road") {
+                candidates.push(i);
+            }
+        }
+
+        if (candidates.length == 0) {
+            // wat
+            return;
+        }
+
+        var tile = Math.round(Math.random() * (candidates.length-1)) + candidates[0];
+        var xOffset = Math.round(Math.random() * (this.size-1));
+        var yOffset = Math.round(Math.random() * (this.size-1));
+
+        block.mesh.position.x = lastRow.tiles[tile].quad.mesh.position.x + xOffset;
+        block.mesh.position.y = yOffset;
+        block.mesh.position.z = lastRow.tiles[tile].quad.mesh.position.z + .5;
+
+        block.travelled = 0;
+        block.row = lastRow;
+        this.roadblocks.push(block);
+        lastRow.container.add(block.mesh);
+    }
+
+    Grid.prototype.removeRoadblock = function(block) {
+        var i = this.roadblocks.lastIndexOf(block);
+        block.row.container.remove(block);
+        this.roadblocks.splice(i);
+    }
 
     return Grid;
 }());

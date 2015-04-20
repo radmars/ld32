@@ -130,18 +130,34 @@ var PlayState = (function() {
         this.updateScore(dt);
     }
 
-    // sizes = half of obj1 + half of obj2
-    function checkObjectCollision(a, b, xSize, ySize, shift) {
+    function checkObjectCollision(a, b, xSize, ySize, shift, aTranslation, bTranslation) {
         var dir = b.position.clone();
-        dir.sub(a.position);
+        if (bTranslation) {
+            dir.x += bTranslation.x;
+            dir.y += bTranslation.y;
+        }
+
+        var a2 = a.position.clone();
+
+        if (aTranslation) {
+            a2.x += aTranslation.x;
+            a2.y += aTranslation.y;
+        }
+
+        dir.sub(a2);
+
         if( dir.x < xSize
             && dir.x > -xSize
             && dir.y < ySize
             && dir.y > -ySize
-        ) {
+            ) {
             if (shift) {
-                b.velocity.x = (dir.x > 0 ? 1 : -1) * 30;
-                a.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
+                if (b.velocity) {
+                    b.velocity.x = (dir.x > 0 ? 1 : -1) * 30;
+                }
+                if (a.velocity) {
+                    a.velocity.x = (dir.x > 0 ? -1 : 1) * 50;
+                }
                 var xshift = (dir.x > 0 ? 1 : -1) * (xSize - Math.abs(dir.x)) / 2;
                 b.position.x += xshift;
                 //b.position.y -= offset.y / 2;
@@ -158,6 +174,7 @@ var PlayState = (function() {
     PlayState.prototype.checkCollision = function() {
         var player = this.player;
         var enemies = this.enemies;
+
         enemies.forEach(function(enemy) {
             // enemy + player
             checkObjectCollision(enemy, player, 58, 78, true);
@@ -180,6 +197,23 @@ var PlayState = (function() {
                 console.log("player hit enemy");
                 player.removeLazer();
             }
+        });
+
+        grid.roadblocks.forEach(function(block) {
+            var translation = block.row.container.position;
+            if (checkObjectCollision(player, block.mesh, 44, 45, true, null, translation)) {
+                console.log("POW");
+                grid.removeRoadblock(block);
+                player.hit(1);
+            }
+
+            enemies.forEach(function(enemy) {
+                if (checkObjectCollision(enemy, block.mesh, 44, 45, true, null, translation)) {
+                    console.log("POWEEE");
+                    grid.removeRoadblock(block);
+                    enemy.hit(1);
+                }
+            });
         });
     }
 
