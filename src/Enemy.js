@@ -9,8 +9,8 @@ var Enemy = (function() {
 
         this.position.x = Math.random() * game.width;
         this.position.y = player.position.y + game.height/2 + 48;
-        this.velocity.y = player.velocity.y - 10;
-        this.maxY = player.maxY + 50;
+        this.velocity.y = player.velocity.y - 2;
+        this.maxY = player.maxY + 320 + Math.random()*50;
     }
 
     Enemy.prototype = Object.create(Car.prototype);
@@ -61,7 +61,7 @@ var Enemy = (function() {
             if(ahead) {
                 // slow down??!?!?
                 if(distance.y < 150) {
-                    this.velocity.y += 5;
+                    this.velocity.y += 4;
                 }
                 else {
                     // try to match their velocity..
@@ -84,7 +84,7 @@ var Enemy = (function() {
             }
             else {
                 // speed up... until we get to closing distance..
-                this.velocity.y -= 5;
+                this.velocity.y -= 13 + Math.random();
             }
         }
 

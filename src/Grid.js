@@ -70,8 +70,8 @@ var Grid = (function() {
         this.container.position.y += this.offset;
 
 
-        this.expandThreshold = 0.25;
-        this.contractThreshold = 0.25;
+        this.expandThreshold = 0.35;
+        this.contractThreshold = 0.15;
         this.roadblockThreshold = 0.05;
         this.counter = 0;
         this.travelled = 0;
