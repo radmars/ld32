@@ -66,12 +66,13 @@ var Grid = (function() {
         this.container = new THREE.Object3D();
         this.centered = new THREE.Object3D();
         container.add(this.container);
-        this.container.position.y += (numTiles -2) * this.size;
+        this.offset = (numTiles -2) * this.size;
+        this.container.position.y += this.offset;
 
 
         this.expandThreshold = 0.25;
         this.contractThreshold = 0.25;
-        this.roadblockThreshold = 0.55;
+        this.roadblockThreshold = 0.05;
         this.counter = 0;
         this.travelled = 0;
 
@@ -85,6 +86,9 @@ var Grid = (function() {
             this.makeRow( this.rows[j-1]);
         }
         window.grid = this;
+
+        //this.makeTestRoadblock(-1000);
+        //this.makeTestRoadblock(-2000);
     }
 
     Grid.prototype.makeInitialRow = function()
@@ -222,12 +226,9 @@ var Grid = (function() {
             }
         }
 
-        this.roadblocks.forEach(function(block) {
-            block.travelled += step;
-        });
-        if (this.roadblocks.length > 0 && this.roadblocks[0].travelled > this.size * (this.numTiles+10)) {
-            var block = this.roadblocks.pop();
-            block.row.container.remove(block);
+        if (this.roadblocks.length > 0 && this.roadblocks[0].mesh.position.y > this.rows[0].container.position.y + 1000) {
+            var block = this.roadblocks.shift();
+            this.container.remove(block.mesh);
         }
     }
 
@@ -257,19 +258,35 @@ var Grid = (function() {
         var yOffset = Math.round(Math.random() * (this.size-1));
 
         block.mesh.position.x = lastRow.tiles[tile].quad.mesh.position.x + xOffset;
-        block.mesh.position.y = yOffset;
+        block.mesh.position.y = yOffset + lastRow.container.position.y;
         block.mesh.position.z = lastRow.tiles[tile].quad.mesh.position.z + .5;
 
         block.travelled = 0;
         block.row = lastRow;
         this.roadblocks.push(block);
-        lastRow.container.add(block.mesh);
+        this.container.add(block.mesh);
+    }
+
+    Grid.prototype.makeTestRoadblock = function(y) {
+        var block = new TQuad(game, {
+            animations: [{
+                frames: ['assets/gfx/blockage1.png'],
+                frameTime: 100,
+            }]
+        });
+
+        block.mesh.position.x = 400;
+        block.mesh.position.y = y;
+        block.mesh.position.z = 1.5;
+
+        this.roadblocks.push(block);
+        this.container.add(block.mesh);
     }
 
     Grid.prototype.removeRoadblock = function(block) {
         var i = this.roadblocks.lastIndexOf(block);
-        block.row.container.remove(block);
-        this.roadblocks.splice(i);
+        this.container.remove(block.mesh);
+        this.roadblocks.splice(i, 1);
     }
 
     return Grid;

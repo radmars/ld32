@@ -113,6 +113,7 @@ var PlayState = (function() {
         this.enemyTimer -= dt;
         if(this.enemyTimer <= 0 && this.enemies.length < 4) {
             this.enemyTimer = 1500;
+            // enemy spawn
             var enemy = new Enemy(game, this.player);
             // NOTE: Useful debugging setting here
             // enemy.dumb = true;
@@ -200,7 +201,9 @@ var PlayState = (function() {
         });
 
         grid.roadblocks.forEach(function(block) {
-            var translation = block.row.container.position;
+            var translation = new THREE.Vector2();
+            translation.x = 0;
+            translation.y = grid.offset;
             if (checkObjectCollision(player, block.mesh, 44, 45, true, null, translation)) {
                 console.log("POW");
                 grid.removeRoadblock(block);
