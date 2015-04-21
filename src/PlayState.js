@@ -117,6 +117,16 @@ var PlayState = (function() {
         this.spaceTranslation = new THREE.Object3D();
         this.spaceTranslation.add(this.bg.mesh);
         this.scene2d.add(this.spaceTranslation);
+
+        // this doesn't work :(
+        /*
+        this.composer = new THREE.EffectComposer( game.renderer );
+        this.composer.addPass( new THREE.RenderPass( this.scene2d, this.camera2d ) );
+
+        var effect = new THREE.BloomPass( 4 );
+        effect.renderToScreen = true;
+        this.composer.addPass( effect );
+        */
     };
 
     function setBlindOverlayOpacity(overlay, opacity) {
@@ -380,6 +390,7 @@ var PlayState = (function() {
 
     PlayState.prototype.render = function(game) {
         game.renderer.clear();
+        //this.composer.render();
         game.renderer.render(this.scene2d, this.camera2d);
     };
 
