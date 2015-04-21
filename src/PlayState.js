@@ -52,7 +52,7 @@ var PlayState = (function() {
             .concat(mapSoundAsset("hit", 0.1))
             .concat(mapSoundAsset("hp", 0.2))
             .concat(mapSoundAsset("explosion", 0.2))
-            .concat(mapSoundAsset("ld32", 0.65));
+            .concat(mapSoundAsset("ld32", 0.45));
     };
 
     PlayState.prototype = Object.create(State.prototype);
@@ -127,6 +127,11 @@ var PlayState = (function() {
         effect.renderToScreen = true;
         this.composer.addPass( effect );
         */
+
+        if (!game.musicStarted) {
+            game.loader.get("audio/ld32").loop(true).play();
+            game.musicStarted = true;
+        }
     };
 
     function setBlindOverlayOpacity(overlay, opacity) {
