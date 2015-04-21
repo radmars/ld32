@@ -22,6 +22,7 @@ var PlayState = (function() {
             { name: 'assets/gfx/lazer.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/player.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/blockage1.png', type: 'img', callback: pixelize },
+            { name: 'assets/gfx/hp.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/road1.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/road2.png', type: 'img', callback: pixelize },
             { name: 'assets/gfx/not-road1.png', type: 'img', callback: pixelize },
@@ -49,10 +50,10 @@ var PlayState = (function() {
             .concat(mapSoundAsset("enemyidle", 0.5))
             .concat(mapSoundAsset("playerlaser"))
             .concat(mapSoundAsset("enemylaser"))
-            .concat(mapSoundAsset("hit", 0.1))
-            .concat(mapSoundAsset("hp", 0.2))
-            .concat(mapSoundAsset("explosion", 0.2))
-            .concat(mapSoundAsset("ld32", 0.45));
+            .concat(mapSoundAsset("hit", 0.2))
+            .concat(mapSoundAsset("hp", 0.1))
+            .concat(mapSoundAsset("explosion", 0.17))
+            .concat(mapSoundAsset("ld32", 0.4));
     };
 
     PlayState.prototype = Object.create(State.prototype);
@@ -337,19 +338,29 @@ var PlayState = (function() {
             checkCollisionWithRoad(enemy);
         });
 
-        grid.roadblocks.forEach(function(block) {
+        grid.hitObjs.forEach(function(block) {
             var translation = new THREE.Vector2();
             translation.x = 0;
             translation.y = grid.offset;
             if (checkObjectCollision(player, block.mesh, 44, 45, true, null, translation)) {
                 grid.removeRoadblock(block);
-                player.hit(1);
+                if (block.type == "block") {
+                    player.hit(1);
+                }
+                else if (block.type == "hp") {
+                    player.heal(1);
+                }
             }
 
             enemies.forEach(function(enemy) {
                 if (checkObjectCollision(enemy, block.mesh, 44, 45, true, null, translation)) {
                     grid.removeRoadblock(block);
-                    enemy.hit(1);
+                    if (block.type == "block") {
+                        enemy.hit(1);
+                    }
+                    else if (block.type == "hp") {
+                        enemy.heal(1);
+                    }
                 }
             });
         });

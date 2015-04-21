@@ -74,11 +74,12 @@ var Grid = (function() {
         this.expandThreshold = 0.35;
         this.contractThreshold = 0.15;
         this.roadblockThreshold = 0.05;
+        this.hpThreshold = 0.07;
         this.counter = 0;
         this.travelled = 0;
 
         this.rows = [];
-        this.roadblocks = [];
+        this.hitObjs = [];
 
         // initial row
         this.makeInitialRow();
@@ -223,20 +224,24 @@ var Grid = (function() {
             this.rotate();
 
             if (Math.random() < this.roadblockThreshold) {
-                this.makeRoadblock();
+                this.makeRoadblock("block");
+            }
+
+            if (Math.random() < this.hpThreshold) {
+                this.makeRoadblock("hp");
             }
         }
 
-        if (this.roadblocks.length > 0 && this.roadblocks[0].mesh.position.y > this.rows[0].container.position.y + 1000) {
-            var block = this.roadblocks.shift();
+        if (this.hitObjs.length > 0 && this.hitObjs[0].mesh.position.y > this.rows[0].container.position.y + 1000) {
+            var block = this.hitObjs.shift();
             this.container.remove(block.mesh);
         }
     }
 
-    Grid.prototype.makeRoadblock = function() {
+    Grid.prototype.makeRoadblock = function(type) {
         var block = new TQuad(game, {
             animations: [{
-                frames: ['assets/gfx/blockage1.png'],
+                frames: [type == "block" ? 'assets/gfx/blockage1.png' : 'assets/gfx/hp.png'],
                 frameTime: 100,
             }]
         });
@@ -262,9 +267,11 @@ var Grid = (function() {
         block.mesh.position.y = yOffset + lastRow.container.position.y;
         block.mesh.position.z = lastRow.tiles[tile].quad.mesh.position.z + .5;
 
+        block.type = type;
+
         block.travelled = 0;
         block.row = lastRow;
-        this.roadblocks.push(block);
+        this.hitObjs.push(block);
         this.container.add(block.mesh);
     }
 
@@ -280,14 +287,14 @@ var Grid = (function() {
         block.mesh.position.y = y;
         block.mesh.position.z = 1.5;
 
-        this.roadblocks.push(block);
+        this.hitObjs.push(block);
         this.container.add(block.mesh);
     }
 
     Grid.prototype.removeRoadblock = function(block) {
-        var i = this.roadblocks.lastIndexOf(block);
+        var i = this.hitObjs.lastIndexOf(block);
         this.container.remove(block.mesh);
-        this.roadblocks.splice(i, 1);
+        this.hitObjs.splice(i, 1);
     }
 
     return Grid;

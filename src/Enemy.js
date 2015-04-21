@@ -110,7 +110,7 @@ var Enemy = (function() {
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
         this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
 
-        if(Math.abs(distance.y) < 15 && Math.random() < 0.1) {
+        if(Math.abs(distance.y) < 15 && Math.random() < 0.15) {
             this.shootLazer(onLeft);
         }
     }

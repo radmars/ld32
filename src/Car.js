@@ -128,6 +128,7 @@ var Car = (function() {
 
     Car.prototype.heal = function(heal) {
         this.hp += heal;
+        game.loader.get("audio/hp").play();
         if (this.hp >= this.maxHP) {
             this.hp = this.maxHP;
         }
