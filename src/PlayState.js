@@ -128,11 +128,6 @@ var PlayState = (function() {
         effect.renderToScreen = true;
         this.composer.addPass( effect );
         */
-
-        if (!game.musicStarted) {
-            game.loader.get("audio/ld32").loop(true).play();
-            game.musicStarted = true;
-        }
     };
 
     function setBlindOverlayOpacity(overlay, opacity) {

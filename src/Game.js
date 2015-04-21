@@ -127,7 +127,7 @@ var Game = (function(){
         this.input = new InputManager(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
         this.loader = new Loader();
-        this.setState(new LoaderState(new IntroState(new PlayState())));
+        this.setState(new LoaderState(new IntroState(new TitleState(new PlayState))));
         this.lastFrame = Date.now();
         requestAnimationFrame(function(){
             self.resize();
