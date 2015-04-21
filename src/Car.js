@@ -166,7 +166,7 @@ var Car = (function() {
         container.add(explode.mesh);
         this.explode = explode;
         explode.setAnimation('trail', function() {
-            this.explode = null;
+            explode.done = true;
             container.remove(explode.mesh);
         });
     }

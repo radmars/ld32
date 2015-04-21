@@ -27,6 +27,14 @@ var Enemy = (function() {
 
         if (this.blindDir) {
             this.velocity.x += THREE.Math.clamp(this.blindDir, -5, 5);
+            if (!this.blindTimer) {
+                this.blindTimer = 5000;
+            }
+            this.blindTimer -= dt;
+
+            if (this.blindTimer <= 0) {
+                this.kill();
+            }
         }
         else {
             this.runAI(dt);
@@ -102,7 +110,7 @@ var Enemy = (function() {
         this.velocity.x += THREE.Math.clamp(-distance.x, -5, 5);
         this.velocity.x = THREE.Math.clamp(this.velocity.x, -50, 50);
 
-        if(Math.abs(distance.y) < 15) {
+        if(Math.abs(distance.y) < 15 && Math.random() < 0.1) {
             this.shootLazer(onLeft);
         }
     }

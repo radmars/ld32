@@ -238,7 +238,8 @@ var PlayState = (function() {
         this.checkCollision();
 
         for (var i = 0; i < this.enemies.length; i++) {
-            if (this.enemies[i].hp <= 0 && !this.enemies[i].explode) {
+            if (this.enemies[i].hp <= 0 && this.enemies[i].explode.done) {
+                console.log("enemy spliced");
                 this.enemies.splice(i, 1);
                 i--;
             }
